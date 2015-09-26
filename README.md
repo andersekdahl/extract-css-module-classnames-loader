@@ -17,6 +17,26 @@ This loader takes the same query parameters as the `css-loader` and three more:
 * `outputFile` is the (full) path and file name of the json file to write the class names to.
 * `minimalJson` is if you want the outputted JSON to be indented or not.
 
+### Other output than JSON
+
+If you don't want to output the JSON to a file, you can specify your own output handling function in your webpack config. You specify it like this:
+
+```
+modules.export = {
+  entry: ...,
+  output: {
+    ...
+  },
+  extractCssModuleClassnames: {
+    onOutput: function (fileName, curr, all) {
+
+    }
+  }
+}
+```
+
+The first argument is the absolute path to the currently processed file and the second argument is the classes for that file. The third argument is class names for all previously processed files. Note that this function will get called once for every file during a build, so if you're writing to disk you probably want to debounce that.
+
 ## Example webpack config
 ```
 var cssLoaderOptions = {

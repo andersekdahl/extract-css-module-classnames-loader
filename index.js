@@ -15,10 +15,7 @@ module.exports = function (source, map) {
   var outputFile = query.outputFile;
   var rootPath = query.rootPath || '/';
   var minimalJson = !!query.minimalJson;
-
-  if (!outputFile) {
-    throw new Error('Missing outputFile parameter in extract-css-module-classnames-loader');
-  }
+  var options = this.options.extractCssModuleClassnames || {};
 
   processCss(source, null, {
 		mode: moduleMode ? 'local' : 'global',
@@ -43,19 +40,27 @@ module.exports = function (source, map) {
       });
       files[relativePath(currentFilePath)][key] = classes;
     });
-    clearTimeout(timer);
-    timer = setTimeout(function () {
-      mkpath(path.dirname(outputFile), function (err) {
-        if (err) throw err;
-        var json =;
-        if (minimalJson) {
-          json = JSON.stringify(files);
-        } else {
-          json = JSON.stringify(files, null, 2);
-        }
-        fs.writeFile(outputFile, json);
-      });
-    }, 100);
+
+    if (options.onOutput && typeof options.onOutput === 'function') {
+      options.onOutput(currentFilePath, files[relativePath(currentFilePath)], files);
+    } else {
+      if (!outputFile) {
+        throw new Error('Missing outputFile parameter in extract-css-module-classnames-loader');
+      }
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        mkpath(path.dirname(outputFile), function (err) {
+          if (err) throw err;
+          var json;
+          if (minimalJson) {
+            json = JSON.stringify(files);
+          } else {
+            json = JSON.stringify(files, null, 2);
+          }
+          fs.writeFile(outputFile, json);
+        });
+      }, 100);
+    }
 	});
 
   function relativePath(fullPath) {
