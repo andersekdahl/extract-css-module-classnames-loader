@@ -1,6 +1,6 @@
 {
   "name": "extract-css-module-classnames-loader",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Webpack loader that extracts exported classnames from CSS modules to a JSON file",
   "main": "index.js",
   "scripts": {
