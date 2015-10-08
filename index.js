@@ -18,8 +18,18 @@ module.exports = function (source, map) {
   var options = this.options.extractCssModuleClassnames || {};
 
   processCss(source, null, {
-		mode: moduleMode ? 'local' : 'global',
-		loaderContext: this,
+    mode: moduleMode ? 'local' : 'global',
+    loaderContext: {
+      options: {
+        context: this.options.context
+      },
+      // Note! This assumes that `extract-css-module-classnames-loader` is directly in front of
+      // the `css-loader`
+      loaderIndex: this.loaderIndex - 1,
+      resource: this.resource,
+      loaders: this.loaders,
+      request: this.request
+    },
     query: query
   }, function(err, result) {
     if (err) throw err;
