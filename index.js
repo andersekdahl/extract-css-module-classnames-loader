@@ -11,7 +11,7 @@ module.exports = function (source, map) {
   if (this.cacheable) this.cacheable();
   var currentFilePath = this.resourcePath;
   var query = loaderUtils.parseQuery(this.query);
-	var moduleMode = query.modules || query.module;
+  var moduleMode = query.modules || query.module;
   var outputFile = query.outputFile;
   var rootPath = query.rootPath || '/';
   var minimalJson = !!query.minimalJson;
@@ -21,8 +21,8 @@ module.exports = function (source, map) {
 		mode: moduleMode ? 'local' : 'global',
 		loaderContext: this,
     query: query
-	}, function(err, result) {
-		if (err) throw err;
+  }, function(err, result) {
+    if (err) throw err;
 
     files[relativePath(currentFilePath)] = {};
     Object.keys(result.exports).forEach(function(key) {
@@ -61,7 +61,7 @@ module.exports = function (source, map) {
         });
       }, 100);
     }
-	});
+  });
 
   function relativePath(fullPath) {
     return path.relative(rootPath, fullPath);
