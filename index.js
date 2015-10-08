@@ -50,7 +50,7 @@ module.exports = function (source, map) {
       clearTimeout(timer);
       timer = setTimeout(function () {
         mkpath(path.dirname(outputFile), function (err) {
-          if (err) throw err;
+          if (err && err.code !== 'EEXIST') throw err;
           var json;
           if (minimalJson) {
             json = JSON.stringify(files);
