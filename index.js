@@ -38,6 +38,8 @@ module.exports = function (source, map) {
     Object.keys(result.exports).forEach(function(key) {
       var classes = result.exports[key].split(/\s+/);
       classes = classes.map(function (className) {
+        result.importItemRegExpG.lastIndex = 0;
+
         if (result.importItemRegExpG.test(className)) {
           var match = result.importItemRegExp.exec(className);
           var idx = +match[1];
