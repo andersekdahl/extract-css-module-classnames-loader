@@ -16,8 +16,7 @@ module.exports = function (source, map) {
   var rootPath = query.rootPath || '/';
   var minimalJson = !!query.minimalJson;
   var options = this.options.extractCssModuleClassnames || {};
-
-  processCss(source, null, {
+  var processOpts = {
     mode: moduleMode ? 'local' : 'global',
     loaderContext: {
       options: {
@@ -28,10 +27,13 @@ module.exports = function (source, map) {
       loaderIndex: this.loaderIndex - 1,
       resource: this.resource,
       loaders: this.loaders,
-      request: this.request
+      request: this.request,
+      resourcePath: this.resourcePath
     },
     query: query
-  }, function(err, result) {
+  }
+
+  processCss(source, null, processOpts, function(err, result) {
     if (err) throw err;
 
     files[relativePath(currentFilePath)] = {};
