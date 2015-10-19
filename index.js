@@ -1,3 +1,4 @@
+var assign = require('lodash.assign');
 var processCss = require('css-loader/lib/processCss');
 var loaderUtils = require('loader-utils');
 var mkpath = require('mkpath');
@@ -87,7 +88,7 @@ module.exports = function (source, map) {
     // the Webpack API to get all the aliases
     var resolveAliases = options.resolve && options.resolve.alias;
     var resolveLoaderAliases = options.resolveLoader && options.resolveLoader.alias;
-    return Object.assign({}, resolveAliases || {}, resolveLoaderAliases || {});
+    return assign({}, resolveAliases || {}, resolveLoaderAliases || {});
   }
 
   function isClassName (result, className) {
