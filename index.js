@@ -1,3 +1,4 @@
+var assign = require('lodash.assign');
 var processCss = require('css-loader/lib/processCss');
 var loaderUtils = require('loader-utils');
 var mkpath = require('mkpath');
@@ -9,15 +10,14 @@ var timer;
 
 module.exports = function (source, map) {
   if (this.cacheable) this.cacheable();
-  var currentFilePath = this.resourcePath;
+  var resourcePath = this.resourcePath;
   var query = loaderUtils.parseQuery(this.query);
   var moduleMode = query.modules || query.module;
   var outputFile = query.outputFile;
   var rootPath = query.rootPath || '/';
   var minimalJson = !!query.minimalJson;
   var options = this.options.extractCssModuleClassnames || {};
-
-  processCss(source, null, {
+  var processOpts = {
     mode: moduleMode ? 'local' : 'global',
     loaderContext: {
       options: {
@@ -28,33 +28,41 @@ module.exports = function (source, map) {
       loaderIndex: this.loaderIndex - 1,
       resource: this.resource,
       loaders: this.loaders,
-      request: this.request
+      request: this.request,
+      resourcePath: resourcePath
     },
     query: query
-  }, function(err, result) {
+  }
+  var aliases = getAliases(this.options);
+  var importPath = path.relative(rootPath, resourcePath);
+
+  files[importPath] = files[importPath] || {};
+
+  processCss(source, null, processOpts, function(err, result) {
     if (err) throw err;
 
-    files[relativePath(currentFilePath)] = {};
     Object.keys(result.exports).forEach(function(key) {
-      var classes = result.exports[key].split(/\s+/);
-      classes = classes.map(function (className) {
-        result.importItemRegExpG.lastIndex = 0;
 
-        if (result.importItemRegExpG.test(className)) {
-          var match = result.importItemRegExp.exec(className);
-          var idx = +match[1];
-          var importItem = result.importItems[idx];
-          var fullUrl = path.resolve(path.dirname(currentFilePath), importItem.url);
-          return [relativePath(fullUrl), importItem.export];
-        } else {
+      var classes = result.exports[key].split(/\s+/);
+
+      files[importPath][key] = classes.map(function (className) {
+
+        if (isClassName(result, className)) {
           return className;
         }
+
+        var importItem = getImportItem(result, className);
+        var resolvedPath = resolvePath(importItem.url);
+        var composesPath = resolvedPath || path.resolve(path.dirname(resourcePath), importItem.url);
+
+        return [ path.relative(rootPath, composesPath), importItem.export ];
+
       });
-      files[relativePath(currentFilePath)][key] = classes;
+
     });
 
     if (options.onOutput && typeof options.onOutput === 'function') {
-      options.onOutput(currentFilePath, files[relativePath(currentFilePath)], files);
+      options.onOutput(resourcePath, files[importPath], files);
     } else {
       if (!outputFile) {
         throw new Error('Missing outputFile parameter in extract-css-module-classnames-loader');
@@ -75,8 +83,41 @@ module.exports = function (source, map) {
     }
   });
 
-  function relativePath(fullPath) {
-    return path.relative(rootPath, fullPath);
+  function getAliases (options) {
+    // TODO: Investigate if there is a way to leverage
+    // the Webpack API to get all the aliases
+    var resolveAliases = options.resolve && options.resolve.alias;
+    var resolveLoaderAliases = options.resolveLoader && options.resolveLoader.alias;
+    return assign({}, resolveAliases || {}, resolveLoaderAliases || {});
+  }
+
+  function isClassName (result, className) {
+    result.importItemRegExpG.lastIndex = 0;
+    return !result.importItemRegExpG.test(className);
+  }
+
+  /**
+   * Return the unaliased path of an aliased import (if any)
+   *
+   * @param  {String} importPath Import path (e.g. import 'path/to/foo.css')
+   * @return {String}            The relative path of an aliased import (if any),
+   *                             otherwise empty string
+   */
+  function resolvePath (importPath) {
+    // TODO: Investigate if there is a way to leverage
+    // the Webpack API to handle the alias resolution instead
+    return Object.keys(aliases).reduce(function (prev, alias) {
+      var regex = new RegExp('^' + alias, 'i');
+      if (!regex.test(importPath)) { return prev }
+      var unaliasedPath = importPath.replace(regex, aliases[alias]);
+      return path.resolve(rootPath, unaliasedPath);
+    }, '');
+  }
+
+  function getImportItem (result, className) {
+    var match = result.importItemRegExp.exec(className);
+    var idx = +match[1];
+    return result.importItems[idx];
   }
 
   return source;
