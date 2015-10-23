@@ -77,7 +77,10 @@ module.exports = function (source, map) {
           } else {
             json = JSON.stringify(files, null, 2);
           }
-          fs.writeFile(outputFile, json);
+          fs.writeFile(outputFile, json, function (err) {
+            if (err) throw err;
+            options.onAfterOutput && options.onAfterOutput(resourcePath, files[importPath], files);
+          });
         });
       }, 100);
     }

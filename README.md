@@ -35,7 +35,31 @@ modules.export = {
 }
 ```
 
-The first argument is the absolute path to the currently processed file and the second argument is the classes for that file. The third argument is class names for all previously processed files. Note that this function will get called once for every file during a build, so if you're writing to disk you probably want to debounce that.
+The first argument is the absolute path to the currently processed file and the second argument is the classes for that file. The third argument is class names for all previously processed files. Note that this function will get called once for every file during a build, so if you're writing to disk you probably want to debounce that.  
+
+### Trigger something when the JSON file has been written to
+
+If you want to perform something after the JSON file has been written to, you can specify a `onAfterOutput` function in
+the config like this:
+
+```
+modules.export = {
+  entry: ...,
+  output: {
+    ...
+  },
+  extractCssModuleClassnames: {
+    onAfterOutput: function (fileName, curr, all) {
+
+    }
+  }
+}
+```
+
+This can be used if you don't want to take over outputting the JSON to a file, but still want to perform something
+after that has happened. The parameters passed to this function is the same as `onOutput`.
+
+_Note! This method won't get called if you implement `onOutput`_
 
 ## Example webpack config
 ```
