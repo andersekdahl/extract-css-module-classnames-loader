@@ -73,8 +73,7 @@ var cssLoaderOptions = {
 
 var extractCssClassnamesOptions = {
   rootPath: path.join(__dirname, '../', 'src'),
-  outputFile: path.join(__dirname, '../', 'build', 'assets', 'css-classes.json'),
-  modules: true
+  outputFile: path.join(__dirname, '../', 'build', 'assets', 'css-classes.json')
 };
 
 cssLoaders.push({
@@ -82,7 +81,8 @@ cssLoaders.push({
   loader: [
     'style',
     'css?' + JSON.stringify(cssLoaderOptions),
-    'extract-css-module-classnames?' + JSON.stringify(extractCssClassnamesOptions)
+    'extract-css-module-classnames?' + JSON.stringify(extractCssClassnamesOptions),
+    'sass'
   ].join('!')
 });
 ```
