@@ -1,5 +1,5 @@
 var assign = require('lodash.assign');
-var processCss = require('css-loader/lib/processCss');
+var processCss = requireFromLocalOrParent('css-loader/lib/processCss');
 var loaderUtils = require('loader-utils');
 var mkpath = require('mkpath');
 var path = require('path');
@@ -124,4 +124,16 @@ module.exports = function (source, map) {
   }
 
   return source;
+};
+
+// Needed to make require work with `npm link` since `css-loader`
+// is a peerDependency
+function requireFromLocalOrParent(id) {
+  var parent = module;
+  for (; parent; parent = parent.parent) {
+    try {
+      return parent.require(id);
+    } catch(ex) {}
+  }
+  throw new Error("Cannot find module '" + id + "'");
 };
