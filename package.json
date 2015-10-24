@@ -22,9 +22,11 @@
   },
   "homepage": "https://github.com/andersekdahl/extract-css-module-classnames-loader#readme",
   "dependencies": {
-    "css-loader": "^0.19.0",
     "loader-utils": "^0.2.11",
     "lodash.assign": "^3.2.0",
     "mkpath": "^0.1.0"
+  },
+  "peerDependencies": {
+    "css-loader": "*"
   }
 }
