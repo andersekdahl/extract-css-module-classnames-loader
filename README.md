@@ -16,6 +16,9 @@ This loader takes the same query parameters as the `css-loader` and three more:
 * `rootPath` is the common root path for all your css files. It is used to strip the base path in the JSON output.
 * `outputFile` is the (full) path and file name of the json file to write the class names to.
 * `minimalJson` is if you want the outputted JSON to be indented or not.
+* `writeDebounceMs` is the number of miliseconds to wait before writing JSON to file. Defaults to 100ms. Needed 
+  because this loader gets called once for every file to process and we don't want to flush the JSON to disk for every
+  processed file.
 
 ### Other output than JSON
 

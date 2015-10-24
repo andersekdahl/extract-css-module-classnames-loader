@@ -16,6 +16,7 @@ module.exports = function (source, map) {
   var outputFile = query.outputFile;
   var rootPath = query.rootPath || '/';
   var minimalJson = !!query.minimalJson;
+  var writeDebounceMs = query.writeDebounceMs || 100;
   var options = this.options.extractCssModuleClassnames || {};
   var processOpts = {
     mode: moduleMode ? 'local' : 'global',
@@ -82,7 +83,7 @@ module.exports = function (source, map) {
             options.onAfterOutput && options.onAfterOutput(resourcePath, files[importPath], files);
           });
         });
-      }, 100);
+      }, writeDebounceMs);
     }
   });
 
